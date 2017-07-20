@@ -1,22 +1,19 @@
-%=====================================================================%
-% BETA EXTRACTION
-%
-%   This script allows the user to select a set of ROIs and a set of
-%   contrast images
-%
+%% BETA EXTRACTION
+
+% DETAILED INFO: https://github.com/scanUCLA/spm12-getBetas
+
+% This script allows the user to select a set of ROIs and a set of
+% contrast images. Just call this script and dialogs will come up for the
+% rest. Or edit code to get image files algorithmically
+
 %   Created 1/23/2015 by Jared Torre
-%
-%=====================================================================%
-clear all; home;
+%   Edited by Kevin Tan
 
-javaaddpath('/space/raid8/data/lieber/JTORRE/toolbox/xlwrite/jxl.jar')
-javaaddpath('/space/raid8/data/lieber/JTORRE/toolbox/xlwrite/MXL.jar')
-addpath(genpath('/space/raid8/data/lieber/JTORRE/toolbox/xlwrite'))
-
-startDIR = pwd;
-
+%%
 roifiles = spm_select([1 Inf], {'image'}, 'Select the ROI .hdr or .nii files...', [], pwd, '.(hdr|nii)', 1:99999);
 confiles = spm_select([1 Inf], {'image'}, 'Select the contrast/beta .hdr or .nii files...', [], pwd, '.(hdr|nii)', 1:99999);
+saveDir = uigetdir(pwd, 'Select save folder for extracted betas');
+
 
 roifiles = cellstr(roifiles);
 confiles = cellstr(confiles);
@@ -114,9 +111,11 @@ for r = 1:nroi
     end
 end
 
-a=datestr(clock,31);   % returns date string of the form 'YYYY-MM-DD HH:MM:SS' e.g., 2006-12-27 15:03:37
-time_stamp = [a(6:7) a(9:10) a(3:4) '_' a(12:13) a(15:16)];   % timestamp is a function name, hence the _ in time_stamp
-xlwrite(strcat('roidata_',time_stamp,'.xls'),data);
+% Save as matlab matrix & excel spreadsheet
+date = datestr(now,'yyyymmdd_HHMM');
+filename = [saveDir '/roiBetas_' date];
+save([filename '.mat'],'data');
+xlswrite([filename '.xlsx'],data);
 
 % Cleanup the resliced and converted ROI files
 cellfun(@(x) delete(x), [converted_hdr2nii_roifiles;rtmp_roifiles])

@@ -110,12 +110,13 @@ for r = 1:nroi
         data{c+1,r+2} = nanmean(img(roiIDX{r}));
     end
 end
+dataT = cell2table(data);
 
 % Save as matlab matrix & excel spreadsheet
 date = datestr(now,'yyyymmdd_HHMM');
 filename = [saveDir '/roiBetas_' date];
 save([filename '.mat'],'data');
-xlswrite([filename '.xlsx'],data);
+xlswrite([filename '.xlsx'],dataT);
 
 % Cleanup the resliced and converted ROI files
 cellfun(@(x) delete(x), [converted_hdr2nii_roifiles;rtmp_roifiles])
